@@ -465,4 +465,495 @@ try:
     for link in story_links:
         print(link.get_text(), "->", link['href'])
 
-except requests.e
+except requests.exceptions.RequestException as e:
+    print(f"Error fetching URL: {e}")
+except Exception as e:
+    print(f"Error parsing HTML: {e}")
+```
+*Note:* Web scraping should be done responsibly and ethically, respecting website `robots.txt` files and terms of service. Websites change structure frequently, breaking scrapers.
+*Suggested Resource:* Real Python on Web Scraping (https://realpython.com/python-web-scraping-practical-introduction/), BeautifulSoup Docs (https://www.crummy.com/software/BeautifulSoup/bs4/doc/)
+
+### G. Introduction to Testing
+
+Writing automated tests to ensure your code works correctly and continues to work as you make changes.
+
+**1. Why Test?**
+Testing catches bugs early, prevents regressions (reintroducing old bugs), improves code design (testable code is often better designed), provides documentation (tests show how code is intended to be used), and gives confidence when refactoring or adding features.
+
+**2. `unittest` or `pytest` basics:**
+*   **`unittest`:** Python's built-in testing framework, based on xUnit style. Uses classes and methods starting with `test_`.
+*   **`pytest`:** A popular third-party framework (`pip install pytest`) known for its simpler syntax (uses plain functions starting with `test_`), powerful features (fixtures, parametrization), and better reporting.
+*Example (`pytest`):*
+```python
+# test_calculator.py (requires pytest installed)
+# Assume calculator.py exists with an add function
+# from calculator import add 
+
+def add(a, b):
+    return a + b
+
+def test_add_positive():
+    assert add(2, 3) == 5
+
+def test_add_negative():
+    assert add(-1, -1) == -2
+
+def test_add_mixed():
+    assert add(5, -3) == 2
+
+# Run from terminal: pytest
+```
+
+**3. Assertions:**
+Statements that check if a condition is true. If the condition is false, the test fails. `pytest` uses the standard `assert` statement. `unittest` uses specific assertion methods like `assertEqual()`, `assertTrue()`, `assertRaises()`.
+
+*Suggested Resource:* `unittest` Docs (https://docs.python.org/3/library/unittest.html), `pytest` Docs (https://docs.pytest.org/), Real Python on Testing (https://realpython.com/python-testing/)
+
+### H. Intermediate Projects
+
+Applying intermediate concepts to build more substantial applications.
+
+**1. Web Scraper:**
+*   **Goal:** Choose a website (e.g., a news site, e-commerce product page, weather site) and extract specific pieces of information (headlines, prices, temperatures, links). Store the extracted data in a structured format (e.g., CSV, JSON).
+*   **Concepts Used:** `requests`, `BeautifulSoup`, file handling (CSV/JSON), error handling, potentially basic data structures (lists, dictionaries).
+
+**2. Simple Blog Application (using Flask or Django):**
+*   **Goal:** Build a basic web application where users can view blog posts, and an admin can create/edit/delete posts. Focus on understanding the basics of the chosen web framework.
+*   **Concepts Used:** Introduction to Flask or Django (routing, templates, basic database interaction/ORM), HTML basics, virtual environments, potentially basic OOP for models.
+*   **Resources:** Flask Docs (https://flask.palletsprojects.com/), Django Docs (https://docs.djangoproject.com/), associated tutorials.
+
+**3. Data Analysis Project:**
+*   **Goal:** Find a dataset (e.g., from Kaggle, government sites) in CSV format. Use libraries like Pandas to load the data, clean it (handle missing values), perform basic analysis (calculate means, medians, correlations, group data), and optionally create simple visualizations using Matplotlib or Seaborn.
+*   **Concepts Used:** `pandas` for data manipulation, `matplotlib`/`seaborn` for plotting, file handling (CSV), data structures (DataFrames, Series), basic statistics.
+*   **Resources:** Pandas Docs (https://pandas.pydata.org/docs/), Matplotlib Docs (https://matplotlib.org/stable/contents.html), Seaborn Docs (https://seaborn.pydata.org/api.html).
+
+
+
+
+---
+
+
+
+# Python Learning Curriculum: Advanced Level (Pro)
+
+This section covers advanced Python concepts, specialized domains, and software engineering best practices necessary for professional Python development.
+
+## III. Advanced Level (Pro)
+
+### A. Advanced OOP Concepts
+
+Mastering the intricacies of Python's object model.
+
+**1. Metaclasses:**
+In Python, classes are themselves objects, and they are created by metaclasses. The default metaclass is `type`. Understanding metaclasses allows you to customize class creation itself, enabling powerful metaprogramming techniques like automatically adding methods, registering classes, or implementing custom object models (e.g., ORMs).
+*   **Concept:** Classes are instances of their metaclass. `type` is the default metaclass.
+*   **Custom Metaclass:** Define a class inheriting from `type` and implement `__new__` or `__init__` to control class creation.
+*Example (Simple Metaclass):*
+```python
+class MyMeta(type):
+    def __new__(cls, name, bases, dct):
+        print(f"Creating class: {name}")
+        # Add a custom attribute to the class being created
+        dct["custom_attribute"] = 100
+        return super().__new__(cls, name, bases, dct)
+
+class MyClass(metaclass=MyMeta):
+    pass
+
+print(MyClass.custom_attribute) # Output: 100
+```
+*Suggested Resource:* Real Python on Metaclasses (https://realpython.com/python-metaclasses/), Fluent Python Ch. 21.
+
+**2. Abstract Base Classes (ABCs):**
+Used to define interfaces or enforce that subclasses implement specific methods. The `abc` module provides the `ABC` metaclass and the `@abstractmethod` decorator.
+*   **Purpose:** Define common APIs for a set of subclasses, ensuring consistency.
+*   **Usage:** Inherit from `abc.ABC` and decorate methods that must be implemented by subclasses with `@abc.abstractmethod`.
+*Example:*
+```python
+import abc
+
+class Vehicle(abc.ABC):
+    @abc.abstractmethod
+    def start_engine(self):
+        pass
+
+    @abc.abstractmethod
+    def stop_engine(self):
+        pass
+
+class Car(Vehicle):
+    def start_engine(self):
+        print("Car engine started.")
+
+    def stop_engine(self):
+        print("Car engine stopped.")
+
+# my_vehicle = Vehicle() # TypeError: Can't instantiate abstract class
+my_car = Car()
+my_car.start_engine()
+```
+*Suggested Resource:* Python Docs on `abc` (https://docs.python.org/3/library/abc.html)
+
+**3. Design Patterns in Python:**
+Reusable solutions to common software design problems. While Python's dynamic nature sometimes offers simpler alternatives, understanding classic patterns (Gang of Four - GoF) and their Pythonic implementations is valuable.
+*   **Examples:** Singleton, Factory (Method/Abstract), Builder, Prototype, Adapter, Decorator, Facade, Proxy, Observer, Strategy, Template Method, State.
+*   **Pythonic Approach:** Often leverages first-class functions, decorators, context managers, or dynamic typing instead of strict class hierarchies.
+*Example (Simple Strategy Pattern):*
+```python
+import abc
+
+class Exporter(abc.ABC):
+    @abc.abstractmethod
+    def export(self, data):
+        pass
+
+class JSONExporter(Exporter):
+    def export(self, data):
+        print(f"Exporting data to JSON: {data}")
+
+class CSVExporter(Exporter):
+    def export(self, data):
+        print(f"Exporting data to CSV: {data}")
+
+class DataProcessor:
+    def __init__(self, exporter: Exporter):
+        self._exporter = exporter
+
+    def process_and_export(self, data):
+        print(f"Processing data: {data}")
+        self._exporter.export(data)
+
+data = {"id": 1, "value": "test"}
+json_processor = DataProcessor(JSONExporter())
+json_processor.process_and_export(data)
+
+csv_processor = DataProcessor(CSVExporter())
+csv_processor.process_and_export(data)
+```
+*Suggested Resource:* "Design Patterns: Elements of Reusable Object-Oriented Software" (GoF book), Various online resources and Python-specific pattern books/articles.
+
+### B. Concurrency and Parallelism
+
+Executing multiple tasks seemingly simultaneously (concurrency) or actually simultaneously (parallelism) to improve performance or responsiveness.
+
+**1. Threading (`threading` module):**
+Runs multiple threads within the same process. Threads share the same memory space. Useful for I/O-bound tasks (e.g., network requests, file operations) where threads can wait for I/O without blocking the entire program.
+*   **Challenge:** The Global Interpreter Lock (GIL) in CPython prevents true parallel execution of Python bytecode on multiple CPU cores for CPU-bound tasks.
+*Example:*
+```python
+import threading
+import time
+
+def worker(name):
+    print(f"Thread {name} starting")
+    time.sleep(2)
+    print(f"Thread {name} finishing")
+
+threads = []
+for i in range(3):
+    t = threading.Thread(target=worker, args=(i,))
+    threads.append(t)
+    t.start()
+
+for t in threads:
+    t.join() # Wait for all threads to complete
+
+print("All threads finished")
+```
+
+**2. Multiprocessing (`multiprocessing` module):**
+Runs multiple independent processes, each with its own Python interpreter and memory space. Bypasses the GIL, allowing true parallel execution on multiple CPU cores. Ideal for CPU-bound tasks (e.g., complex calculations, data processing).
+*   **Challenge:** Inter-process communication (IPC) is more complex and slower than intra-thread communication.
+*Example:*
+```python
+import multiprocessing
+import time
+
+def cpu_task(name):
+    print(f"Process {name} starting")
+    # Simulate CPU-bound work
+    count = 0
+    for i in range(10**7):
+        count += i
+    print(f"Process {name} finishing")
+
+if __name__ == "__main__": # Important guard for multiprocessing
+    processes = []
+    for i in range(3):
+        p = multiprocessing.Process(target=cpu_task, args=(i,))
+        processes.append(p)
+        p.start()
+
+    for p in processes:
+        p.join()
+
+    print("All processes finished")
+```
+
+**3. Asynchronous Programming (`asyncio`, `async`/`await`):**
+A concurrency model based on event loops and coroutines (`async def` functions). Allows handling many I/O-bound operations concurrently within a single thread, efficiently managing waiting time without blocking. Uses `async` to define coroutines and `await` to pause execution until an awaited coroutine/task completes.
+*   **Use Case:** High-performance network applications (servers, clients), GUIs.
+*Example:*
+```python
+import asyncio
+import time
+
+async def say_after(delay, what):
+    await asyncio.sleep(delay)
+    print(what)
+
+async def main():
+    print(f"started at {time.strftime("%X")}")
+
+    task1 = asyncio.create_task(say_after(1, "hello"))
+    task2 = asyncio.create_task(say_after(2, "world"))
+
+    await task1
+    await task2
+
+    print(f"finished at {time.strftime("%X")}")
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
+**4. Global Interpreter Lock (GIL):**
+A mutex in CPython that protects access to Python objects, preventing multiple threads from executing Python bytecode *in parallel* within a single process. It simplifies memory management but limits CPU-bound parallelism in threads. Does not affect multiprocessing or `asyncio`'s concurrency benefits for I/O-bound tasks.
+
+*Suggested Resources:* Real Python Concurrency Tutorials, Python Docs on `threading`, `multiprocessing`, `asyncio`, Talk Python Training courses.
+
+### C. Web Development (Frameworks)
+
+Building robust web applications and APIs.
+
+**1. Deep Dive into Django or Flask:**
+Mastering a chosen framework beyond the basics.
+*   **Django:** ORM (Object-Relational Mapper) intricacies, advanced querying, custom model fields/managers, Class-Based Views (CBVs), middleware, context processors, form handling/validation, Django REST Framework (DRF) for APIs, Channels for WebSockets, testing strategies, deployment considerations.
+*   **Flask:** Blueprints for organization, application factories, context management (`g`, `request`, `session`), advanced routing, extensions (Flask-SQLAlchemy, Flask-Migrate, Flask-RESTful/Flask-Marshmallow), testing with `pytest`, deployment with WSGI servers.
+
+**2. Building APIs:**
+Designing and implementing RESTful APIs.
+*   **Frameworks:** Django REST Framework (DRF), Flask-RESTful, FastAPI (modern, high-performance, based on type hints).
+*   **Concepts:** REST principles (resources, methods, representations), serialization/deserialization, authentication (Token, JWT, OAuth), authorization/permissions, versioning, documentation (Swagger/OpenAPI).
+
+**3. WebSockets:**
+Enabling full-duplex, real-time communication between client and server (e.g., chat applications, live updates).
+*   **Libraries/Frameworks:** Django Channels, `websockets` library, `Socket.IO` integration.
+
+**4. Authentication and Authorization:**
+Securely managing user identity and access control.
+*   **Authentication:** Verifying user identity (e.g., username/password, social login, tokens).
+*   **Authorization:** Determining what an authenticated user is allowed to do (permissions).
+*   **Techniques:** Session-based auth, Token-based auth (JWT - JSON Web Tokens), OAuth2 (for third-party authorization).
+*   **Libraries:** Framework built-ins, `Authlib`, `python-jose`, etc.
+
+**5. Deployment:**
+Making your web application accessible on the internet.
+*   **Containerization:** Packaging applications and dependencies using Docker.
+*   **WSGI Servers:** Running Python web applications (e.g., Gunicorn, uWSGI).
+*   **Reverse Proxy:** Handling incoming requests, load balancing, serving static files (e.g., Nginx, Apache).
+*   **Cloud Platforms:** Deploying to services like AWS (EC2, Elastic Beanstalk, Lambda), Google Cloud (App Engine, Cloud Run), Azure (App Service), Heroku, DigitalOcean.
+*   **Serverless:** Using platforms like AWS Lambda or Google Cloud Functions with API Gateway.
+
+*Suggested Resources:* Official documentation for Django, Flask, DRF, FastAPI. Real Python web development tutorials. Talk Python Training courses.
+
+### D. Data Science and Machine Learning (Specialization Path)
+
+Leveraging Python for data analysis, visualization, and building predictive models.
+
+**1. NumPy:**
+Fundamental package for numerical computing. Provides powerful N-dimensional array objects, linear algebra, Fourier transform, and random number capabilities. Essential for performance-critical computations.
+*   **Key Concepts:** `ndarray` object, vectorization (avoiding explicit loops), broadcasting, indexing/slicing.
+
+**2. Pandas:**
+High-performance, easy-to-use data structures (DataFrame, Series) and data analysis tools. Built on top of NumPy.
+*   **Key Concepts:** Data loading/saving (CSV, Excel, SQL), data cleaning/wrangling (handling missing data, merging, reshaping), indexing/selection (`loc`, `iloc`), grouping (`groupby`), time series analysis.
+
+**3. Matplotlib/Seaborn:**
+*   **Matplotlib:** Foundational plotting library, provides fine-grained control over plots.
+*   **Seaborn:** Built on Matplotlib, provides a high-level interface for drawing attractive and informative statistical graphics.
+*   **Concepts:** Creating various plot types (line, scatter, bar, histogram, boxplot), customizing plots, subplots.
+
+**4. Scikit-learn:**
+Comprehensive library for machine learning.
+*   **Features:** Classification, regression, clustering, dimensionality reduction algorithms, model selection (cross-validation, grid search), preprocessing (scaling, encoding), evaluation metrics.
+*   **Workflow:** Data loading -> Preprocessing -> Model Training -> Evaluation -> Prediction.
+
+**5. Introduction to Deep Learning Frameworks (Optional):**
+*   **TensorFlow/Keras:** Google's framework for large-scale machine learning and deep neural networks. Keras provides a high-level API.
+*   **PyTorch:** Facebook's framework, popular in research, known for its flexibility and Pythonic feel.
+*   **Concepts:** Neural networks, layers, activation functions, loss functions, optimizers, training loops.
+
+*Suggested Resources:* Official documentation for NumPy, Pandas, Matplotlib, Seaborn, Scikit-learn, TensorFlow, PyTorch. DataCamp/Coursera courses. Books like "Python for Data Analysis" by Wes McKinney.
+
+### E. Advanced Python Features
+
+Leveraging more sophisticated language features.
+
+**1. Context Managers (`with` statement):**
+Objects that manage resources (like files or network connections) by ensuring setup and teardown actions occur. Implement `__enter__` and `__exit__` methods or use the `contextlib` module (`@contextmanager` decorator).
+*Example (Custom Context Manager):*
+```python
+import time
+from contextlib import contextmanager
+
+@contextmanager
+def timer(label):
+    start = time.time()
+    try:
+        yield
+    finally:
+        end = time.time()
+        print(f"{label}: {end - start:.3f}s")
+
+with timer("Block execution"):
+    # Code block to time
+    time.sleep(1.5)
+```
+
+**2. Type Hinting (PEP 484):**
+Adding type annotations to function signatures and variables. Does not affect runtime behavior (Python remains dynamically typed) but enables static analysis tools (like MyPy) to catch type errors before runtime, improves code readability and maintainability.
+*Example:*
+```python
+def greet(name: str) -> str:
+    return f"Hello, {name}"
+
+pi: float = 3.14159
+```
+
+**3. Advanced Decorator Patterns:**
+*   **Decorators with Arguments:** Creating decorators that accept arguments themselves.
+*   **Class Decorators:** Using classes to implement decorators (implementing `__call__`).
+*   **Stacking Decorators:** Applying multiple decorators to a single function.
+
+**4. Working with C extensions (Optional):**
+For performance-critical code, interfacing with C/C++ libraries or writing parts of your application in C/C++ and calling them from Python.
+*   **Tools:** `ctypes` (call functions in shared libraries), `cffi` (alternative interface), `Cython` (compile Python-like code to C extensions), Python C API (direct C integration).
+
+*Suggested Resources:* Fluent Python, Python Docs, Real Python articles on specific features.
+
+### F. Software Development Best Practices
+
+Professional practices for writing maintainable, robust, and collaborative code.
+
+**1. Version Control (Advanced Git):**
+Beyond basic commits and pushes.
+*   **Branching Strategies:** Gitflow, GitHub Flow - managing feature development, releases, hotfixes.
+*   **Rebasing:** Rewriting commit history for cleaner merges.
+*   **Resolving Conflicts:** Handling merge conflicts effectively.
+*   **Collaboration:** Pull requests, code reviews.
+
+**2. Advanced Testing:**
+*   **Mocking:** Using `unittest.mock` or `pytest-mock` to replace external dependencies (databases, APIs) during tests, isolating the code under test.
+*   **Test-Driven Development (TDD):** Writing tests *before* writing the implementation code (Red-Green-Refactor cycle).
+*   **Coverage:** Measuring how much of your code is executed by tests (`coverage.py`).
+
+**3. Continuous Integration/Continuous Deployment (CI/CD):**
+Automating the build, test, and deployment process.
+*   **CI:** Automatically running tests whenever code is pushed to the repository.
+*   **CD:** Automatically deploying code to staging or production environments after tests pass.
+*   **Tools:** Jenkins, GitLab CI/CD, GitHub Actions, CircleCI.
+
+**4. Code Quality Tools:**
+*   **Linters:** Check for style errors and potential code issues (e.g., `Flake8`, `Pylint`).
+*   **Formatters:** Automatically format code to conform to a style guide (e.g., `Black`, `isort`).
+*   **Static Analysis:** Detect potential bugs and type errors (e.g., `MyPy`).
+
+**5. Logging (`logging` module):**
+Recording events, errors, and diagnostic information during program execution. More flexible and configurable than `print()` statements.
+*   **Levels:** DEBUG, INFO, WARNING, ERROR, CRITICAL.
+*   **Handlers:** Sending logs to files, console, network sockets, etc.
+*   **Formatters:** Controlling the output format of log messages.
+
+*Suggested Resources:* Pro Git book, documentation for testing frameworks and CI/CD tools, Real Python articles on best practices.
+
+### G. Performance Optimization
+
+Identifying and addressing performance bottlenecks.
+
+**1. Profiling Code:**
+Measuring where your code spends its time and memory.
+*   **Tools:** `cProfile` (built-in time profiler), `line_profiler` (line-by-line time profiling), memory profilers (`memory_profiler`, `objgraph`).
+
+**2. Memory Management:**
+Understanding CPython's reference counting and garbage collection. Identifying memory leaks or excessive memory usage.
+
+**3. Using efficient data structures and algorithms:**
+Choosing the right tools (e.g., sets/dicts for lookups, appropriate sorting algorithms) can drastically improve performance. Understanding Big O notation.
+
+*Suggested Resources:* Python Docs on profiling, High Performance Python book.
+
+### H. Advanced/Pro Projects
+
+Demonstrating mastery by building complex, real-world applications.
+
+**1. Complex Web Application:**
+*   **Goal:** Build a full-featured web application (e.g., e-commerce site, social media clone, project management tool) using Django or Flask/FastAPI. Include user authentication, database persistence, background tasks (Celery), potentially a REST API, and deploy it.
+
+**2. Data Analysis Pipeline:**
+*   **Goal:** Create an end-to-end pipeline: ingest data from various sources (APIs, databases, files), clean and transform it using Pandas/NumPy, perform statistical analysis or apply ML models using Scikit-learn, and generate reports or an interactive visualization dashboard (using Dash, Streamlit, or Bokeh).
+
+**3. Machine Learning Model Deployment:**
+*   **Goal:** Develop and train a machine learning model (e.g., image classification, sentiment analysis) using Scikit-learn, TensorFlow, or PyTorch. Package the model and deploy it as a web service (API) using Flask/FastAPI/DRF and Docker, allowing others to make predictions.
+
+**4. Contribute to Open Source:**
+*   **Goal:** Find an established Python project on GitHub that interests you. Start by fixing small bugs, improving documentation, or adding tests. Gradually contribute more significant features. Demonstrates collaboration and real-world coding skills.
+
+**5. Build a Custom Tool/Library:**
+*   **Goal:** Identify a recurring problem or missing functionality and create a reusable Python library or command-line tool to address it. Package it properly (using `setup.py` or `pyproject.toml`) and potentially publish it to PyPI.
+
+
+
+
+---
+
+
+
+# Recommended Python Learning Resources
+
+This document collects recommended resources for learning Python, categorized by level.
+
+## Beginner Level
+
+*   **Official Python Documentation:**
+    *   **The Python Tutorial:** (https://docs.python.org/3/tutorial/) - The official, comprehensive tutorial. Excellent starting point.
+    *   **Beginner's Guide:** (https://www.python.org/about/gettingstarted/) - Curated resources and guides on the official Python website.
+*   **Online Courses & Tutorials:**
+    *   **Coursera - Python for Data Science, AI & Development (IBM):** (https://www.coursera.org/learn/python-for-applied-data-science-ai) - Covers Python basics with a focus on data science applications.
+    *   **Coursera - Crash Course on Python (Google):** (https://www.coursera.org/learn/python-crash-course) - Part of the Google IT Automation Professional Certificate, focuses on fundamentals and automation.
+    *   **DataCamp - Introduction to Python:** (https://www.datacamp.com/courses/intro-to-python-for-data-science) - Interactive course focused on data science basics.
+    *   **freeCodeCamp - Python for Everybody:** (https://www.freecodecamp.org/learn/scientific-computing-with-python/) - Comprehensive course covering core Python concepts.
+    *   **Real Python - Python Basics:** (https://realpython.com/tutorials/basics/) - Articles and tutorials covering fundamental concepts.
+
+## Intermediate Level
+
+*   **Online Courses & Tutorials:**
+    *   **Real Python - Intermediate Python Tutorials:** (https://realpython.com/tutorials/intermediate/) - Articles covering topics like OOP, decorators, generators, context managers, etc.
+    *   **DataCamp - Python Programmer Career Track:** (https://www.datacamp.com/tracks/python-programmer) - Covers intermediate topics including OOP, data structures, working with databases, and software engineering principles.
+    *   **Coursera - Python 3 Programming Specialization (University of Michigan):** (https://www.coursera.org/specializations/python-3-programming) - Covers data structures, APIs, and more advanced concepts.
+
+## Advanced Level
+
+*   **Online Courses & Tutorials:**
+    *   **Real Python - Advanced Python Tutorials:** (https://realpython.com/tutorials/advanced/) - Covers advanced topics like concurrency, metaprogramming, performance optimization.
+    *   **Talk Python Training:** (https://training.talkpython.fm/) - Offers various advanced courses on specific topics like Asyncio, web frameworks, testing.
+
+## Practice Platforms
+
+*   **Codewars:** (https://www.codewars.com/) - Community-driven platform with coding challenges (kata) of varying difficulty.
+*   **LeetCode:** (https://leetcode.com/) - Popular platform for practicing data structures and algorithms, often used for technical interview preparation.
+*   **HackerRank:** (https://www.hackerrank.com/) - Offers challenges in algorithms, data structures, AI, databases, and more, with domain-specific tracks.
+*   **Exercism:** (https://exercism.org/) - Free platform offering coding exercises with mentorship and community feedback.
+*   **Project Euler:** (https://projecteuler.net/) - Focuses on challenging mathematical and computational problems requiring programming skills.
+*   **Codecademy:** (https://www.codecademy.com/catalog/language/python) - Offers interactive practice alongside its courses.
+
+## Books
+
+*   **Beginner:**
+    *   **Python Crash Course, 3rd Edition by Eric Matthes:** (No Starch Press) - Hands-on, project-based introduction. Excellent for getting started quickly.
+    *   **Automate the Boring Stuff with Python, 2nd Edition by Al Sweigart:** (No Starch Press, Free online: https://automatetheboringstuff.com/) - Practical guide focused on automating tasks.
+*   **Intermediate/Comprehensive:**
+    *   **Learning Python, 5th Edition by Mark Lutz:** (O'Reilly) - Very comprehensive and detailed reference, covers Python 2 and 3 extensively.
+    *   **Effective Python: 90 Specific Ways to Write Better Python, 2nd Edition by Brett Slatkin:** (Addison-Wesley) - Focuses on best practices and writing more Pythonic code.
+*   **Advanced:**
+    *   **Fluent Python, 2nd Edition by Luciano Ramalho:** (O'Reilly) - A deep dive into Python's features and libraries, focusing on writing idiomatic Python code. Highly recommended for understanding the 'Pythonic' way.
