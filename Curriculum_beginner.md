@@ -355,4 +355,66 @@ with open("output.txt", "w") as f:
 ```
 
 **3. Working with File Paths:**
-The `os` module,
+The `os` module, particularly `os.path`, provides functions for working with file paths in a way that's compatible across different operating systems (Windows, macOS, Linux).
+*   `os.path.join(part1, part2, ...)`: Joins path components intelligently.
+*   `os.path.exists(path)`: Checks if a file or directory exists.
+*   `os.path.isfile(path)` / `os.path.isdir(path)`: Checks if it's a file/directory.
+*Example:*
+```python
+import os
+
+file_path = os.path.join("data", "input.csv")
+print(file_path) # Output might be 'data/input.csv' or 'data\input.csv'
+if os.path.exists(file_path):
+    print("File exists!")
+```
+
+**4. Using `with` statement:**
+As shown in the examples above, the `with open(...) as ...:` syntax is the recommended way to handle files. It ensures that the file is automatically closed even if errors occur within the `with` block. This prevents resource leaks and potential data corruption.
+*Suggested Resource:* Real Python on File I/O (https://realpython.com/read-write-files-python/)
+
+### H. Error Handling (Basics)
+
+Errors during program execution are called exceptions. Handling them prevents your program from crashing unexpectedly.
+
+**1. Understanding Errors:**
+*   **Syntax Errors:** Mistakes in the code structure that Python cannot parse (e.g., missing colon, incorrect indentation). These prevent the program from running at all.
+*   **Runtime Errors (Exceptions):** Errors that occur during execution (e.g., trying to divide by zero (`ZeroDivisionError`), accessing a non-existent file (`FileNotFoundError`), using an invalid index (`IndexError`)).
+
+**2. `try-except` Blocks:**
+You place code that might raise an exception inside a `try` block. If an exception occurs, the code inside the corresponding `except` block is executed. You can catch specific exception types.
+*Example:*
+```python
+try:
+    num_str = input("Enter a number: ")
+    num = int(num_str)
+    result = 10 / num
+    print(f"Result is: {result}")
+except ValueError:
+    print("Invalid input. Please enter a number.")
+except ZeroDivisionError:
+    print("Cannot divide by zero.")
+except Exception as e: # Catch any other unexpected exceptions
+    print(f"An unexpected error occurred: {e}")
+finally:
+    print("Execution finished (or attempted).") # Optional: always runs
+```
+*Suggested Resource:* Python Docs on Errors and Exceptions (https://docs.python.org/3/tutorial/errors.html)
+
+### I. Beginner Projects
+
+Applying learned concepts through small projects solidifies understanding.
+
+**1. Simple Calculator:**
+*   **Goal:** Take two numbers and an operator (+, -, *, /) as input from the user and print the result.
+*   **Concepts Used:** `input()`, `print()`, variables, data types (float/int conversion), `if-elif-else` statements, basic arithmetic operators.
+
+**2. Number Guessing Game:**
+*   **Goal:** The program generates a random number within a range (e.g., 1-100). The user repeatedly guesses the number. The program tells the user if their guess is too high or too low until they guess correctly.
+*   **Concepts Used:** `random.randint()`, `input()`, `print()`, `int()` conversion, `while` loop, `if-elif-else`, comparison operators.
+
+**3. Basic To-Do List Application (Console):**
+*   **Goal:** Allow users to add tasks, view all tasks, and potentially mark tasks as complete or remove them. Store tasks in a list.
+*   **Concepts Used:** Lists, `input()`, `print()`, `while` loop (for main menu), `if-elif-else` (for menu choices), list methods (`append`, `remove`), `for` loop (to display tasks).
+
+*Suggested Resource:* Practice platforms like Codewars, HackerRank, or follow project tutorials on freeCodeCamp or Real Python.
